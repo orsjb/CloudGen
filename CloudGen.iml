@@ -8,5 +8,8 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="io.jenetics:jenetics:3.8.0" level="project" />
+    <orderEntry type="library" name="org.deeplearning4j:deeplearning4j-core:0.8.0" level="project" />
+    <orderEntry type="library" name="org.nd4j:nd4j-native-platform:0.8.0" level="project" />
+    <orderEntry type="library" name="org.datavec:datavec-api:0.8.0" level="project" />
   </component>
 </module>
