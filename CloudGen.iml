@@ -13,5 +13,6 @@
     <orderEntry type="library" name="org.datavec:datavec-api:0.8.0" level="project" />
     <orderEntry type="library" name="org.moeaframework:moeaframework:2.12" level="project" />
     <orderEntry type="library" name="cn.apiclub.third:jgap:3.6.2" level="project" />
+    <orderEntry type="module" module-name="PatternSpace" />
   </component>
 </module>
