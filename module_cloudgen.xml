@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_cloudgen" default="compile.module.cloudgen">
+  <dirname property="module.cloudgen.basedir" file="${ant.file.module_cloudgen}"/>
+  
+  <property name="module.jdk.home.cloudgen" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.cloudgen" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.cloudgen" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.cloudgen" value="-encoding UTF-8 -source 1.5 -target 1.5 ${compiler.args}"/>
+  
+  <property name="cloudgen.output.dir" value="${module.cloudgen.basedir}/target/classes"/>
+  <property name="cloudgen.testoutput.dir" value="${module.cloudgen.basedir}/target/test-classes"/>
+  
+  <path id="cloudgen.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="cloudgen.module.production.classpath">
+    <path refid="${module.jdk.classpath.cloudgen}"/>
+    <path refid="library.cn.apiclub.third:jgap:3.6.2.classpath"/>
+    <pathelement location="${patternspace.output.dir}"/>
+  </path>
+  
+  <path id="cloudgen.runtime.production.module.classpath">
+    <pathelement location="${cloudgen.output.dir}"/>
+    <path refid="library.io.jenetics:jenetics:3.8.0.classpath"/>
+    <path refid="library.org.deeplearning4j:deeplearning4j-core:0.8.0.classpath"/>
+    <path refid="library.org.nd4j:nd4j-native-platform:0.8.0.classpath"/>
+    <path refid="library.org.datavec:datavec-api:0.8.0.classpath"/>
+    <path refid="library.org.moeaframework:moeaframework:2.12.classpath"/>
+    <path refid="library.cn.apiclub.third:jgap:3.6.2.classpath"/>
+    <path refid="patternspace.runtime.production.module.classpath"/>
+  </path>
+  
+  <path id="cloudgen.module.classpath">
+    <path refid="${module.jdk.classpath.cloudgen}"/>
+    <pathelement location="${cloudgen.output.dir}"/>
+    <path refid="library.io.jenetics:jenetics:3.8.0.classpath"/>
+    <path refid="library.org.deeplearning4j:deeplearning4j-core:0.8.0.classpath"/>
+    <path refid="library.org.nd4j:nd4j-native-platform:0.8.0.classpath"/>
+    <path refid="library.org.datavec:datavec-api:0.8.0.classpath"/>
+    <path refid="library.org.moeaframework:moeaframework:2.12.classpath"/>
+    <path refid="library.cn.apiclub.third:jgap:3.6.2.classpath"/>
+    <pathelement location="${patternspace.testoutput.dir}"/>
+    <pathelement location="${patternspace.output.dir}"/>
+  </path>
+  
+  <path id="cloudgen.runtime.module.classpath">
+    <pathelement location="${cloudgen.testoutput.dir}"/>
+    <pathelement location="${cloudgen.output.dir}"/>
+    <path refid="library.io.jenetics:jenetics:3.8.0.classpath"/>
+    <path refid="library.org.deeplearning4j:deeplearning4j-core:0.8.0.classpath"/>
+    <path refid="library.org.nd4j:nd4j-native-platform:0.8.0.classpath"/>
+    <path refid="library.org.datavec:datavec-api:0.8.0.classpath"/>
+    <path refid="library.org.moeaframework:moeaframework:2.12.classpath"/>
+    <path refid="library.cn.apiclub.third:jgap:3.6.2.classpath"/>
+    <path refid="patternspace.runtime.module.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.cloudgen">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.cloudgen">
+    <patternset refid="excluded.from.module.cloudgen"/>
+  </patternset>
+  
+  <path id="cloudgen.module.sourcepath">
+    <dirset dir="${module.cloudgen.basedir}">
+      <include name="src/main/java"/>
+      <include name="src/main/resources"/>
+    </dirset>
+  </path>
+  
+  <path id="cloudgen.module.test.sourcepath">
+    <dirset dir="${module.cloudgen.basedir}">
+      <include name="src/test/java"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.cloudgen" depends="compile.module.cloudgen.production,compile.module.cloudgen.tests" description="Compile module CloudGen"/>
+  
+  <target name="compile.module.cloudgen.production" depends="register.custom.compilers,compile.module.patternspace" description="Compile module CloudGen; production classes">
+    <mkdir dir="${cloudgen.output.dir}"/>
+    <javac2 destdir="${cloudgen.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.cloudgen}/javac">
+      <compilerarg line="${compiler.args.cloudgen}"/>
+      <bootclasspath refid="cloudgen.module.bootclasspath"/>
+      <classpath refid="cloudgen.module.production.classpath"/>
+      <src refid="cloudgen.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.cloudgen"/>
+    </javac2>
+    
+    <copy todir="${cloudgen.output.dir}">
+      <fileset dir="${module.cloudgen.basedir}/src/main/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.cloudgen.basedir}/src/main/resources">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.cloudgen.tests" depends="register.custom.compilers,compile.module.cloudgen.production" description="compile module CloudGen; test classes" unless="skip.tests">
+    <mkdir dir="${cloudgen.testoutput.dir}"/>
+    <javac2 destdir="${cloudgen.testoutput.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.cloudgen}/javac">
+      <compilerarg line="${compiler.args.cloudgen}"/>
+      <bootclasspath refid="cloudgen.module.bootclasspath"/>
+      <classpath refid="cloudgen.module.classpath"/>
+      <src refid="cloudgen.module.test.sourcepath"/>
+      <patternset refid="excluded.from.compilation.cloudgen"/>
+    </javac2>
+    
+    <copy todir="${cloudgen.testoutput.dir}">
+      <fileset dir="${module.cloudgen.basedir}/src/test/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="clean.module.cloudgen" description="cleanup module">
+    <delete dir="${cloudgen.output.dir}"/>
+    <delete dir="${cloudgen.testoutput.dir}"/>
+  </target>
+</project>
