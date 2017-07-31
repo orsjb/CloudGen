@@ -7,10 +7,7 @@ import org.jgap.*;
 import org.jgap.impl.DefaultConfiguration;
 import org.jgap.impl.DoubleGene;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.util.Random;
 
 public class EvolveAdaptiveOscillator {
@@ -18,9 +15,9 @@ public class EvolveAdaptiveOscillator {
 
     static final double TWO_PI = 2 * Math.PI;
     static final double MS_PER_STEP = 20;
-    static final int MAX_TRIALS = 10;
-    static final int DRIVE_TIME = 5000;
-    static final int RUN_TIME = 5000;
+    static final int MAX_TRIALS = 20;
+    static final int DRIVE_TIME = 2000;
+    static final int RUN_TIME = 3000;
     static final Random rng = new Random();
 
     public static class FitnessFunc extends FitnessFunction {
@@ -33,11 +30,22 @@ public class EvolveAdaptiveOscillator {
 
         @Override
         protected double evaluate(IChromosome a_subject) {
-            return evaluatePrint(a_subject, false);
+
+            JCtrnn ctrnn = new JCtrnn(com.olliebown.ctrnn.Chromosome.fromJGAPChromosome(a_subject), params);
+            return evaluatePrint(ctrnn, false, null);
         }
 
-        public double evaluatePrint(IChromosome a_subject, boolean print) {
-            JCtrnn ctrnn = new JCtrnn(com.olliebown.ctrnn.Chromosome.fromJGAPChromosome(a_subject), params);
+        public double evaluatePrint(JCtrnn ctrnn, boolean print, String graphOutput) {
+            FileOutputStream fos = null;
+            PrintStream ps = null;
+            if(graphOutput != null && !graphOutput.equals("")) {
+                try {
+                    fos = new FileOutputStream(new File(graphOutput));
+                    ps = new PrintStream(fos);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
             ctrnn.resetZero();
             float productScore = 1;
             float avgScore = 0;
@@ -46,7 +54,7 @@ public class EvolveAdaptiveOscillator {
                 //aim of each trial is to score the ctrnn on its entrainment
                 //run with an input for some time, then check the period of the ctrnn oscillation
                 //choose period
-                int periodInMS = (int)(rng.nextFloat() * 2800 + 200);
+                int periodInMS = (int)(rng.nextFloat() * 2800 + 400);
                 int periodInTimeSteps = (int)(periodInMS / MS_PER_STEP);
                 float phaseX = rng.nextFloat();
                 float phaseY = rng.nextFloat();
@@ -60,7 +68,11 @@ public class EvolveAdaptiveOscillator {
                     inputs[1] = (float)(Math.sin((t / (float)periodInTimeSteps + phaseY) * TWO_PI));
                     inputs[2] = (float)(Math.sin((t / (float)periodInTimeSteps + phaseZ) * TWO_PI));
                     ctrnn.update(inputs);
-                    outputData[t] = ctrnn.getOutput(0);
+                    float out = ctrnn.getOutput(0);
+//                    outputData[t] = out;                  //don't collect on driving phase
+                    if(ps != null) {
+                        ps.println(t + "," + inputs[0] + "," + inputs[1] + "," + inputs[2] + "," + out);
+                    }
                 }
                 //set inputs to zero now? Or random?
                 inputs[0] = 0;//rng.nextFloat() * 2f - 1f;
@@ -68,7 +80,11 @@ public class EvolveAdaptiveOscillator {
                 inputs[2] = 0;//rng.nextFloat() * 2f - 1f;
                 for(; t < RUN_TIME+DRIVE_TIME; t++) {
                     ctrnn.update(inputs);
-                    outputData[t] = ctrnn.getOutput(0);
+                    float out = ctrnn.getOutput(0);
+                    outputData[t] = out;
+                    if(ps != null) {
+                        ps.println(t + "," + inputs[0] + "," + inputs[1] + "," + inputs[2] + "," + out);
+                    }
                 }
                 //analyse the data
                 //now we have outputData populated and we know the period.
@@ -87,9 +103,10 @@ public class EvolveAdaptiveOscillator {
                     }
                     lastVal = outputData[t];
                 }
+                stats.addValue(t - lastXing);   //this last one ensures that the long tail is counted if the agent stops
                 double measuredPeriodInTimeSteps = stats.getMean();
                 if(print) {
-                    System.out.println("               - Period " + periodInTimeSteps + ", Measured " + measuredPeriodInTimeSteps + " (count " + stats.getN() + ", stdev " + stats.getStandardDeviation() + ")");
+                    System.out.println("               - Period " + periodInTimeSteps + ",\tMeasured " + measuredPeriodInTimeSteps + "\t(count " + stats.getN() + ",\tstdev " + stats.getStandardDeviation() + ")");
                 }
                 if(measuredPeriodInTimeSteps == 0 || Double.isNaN(measuredPeriodInTimeSteps) || Double.isInfinite(measuredPeriodInTimeSteps)) {
                     thisTrialScore = 0;
@@ -104,26 +121,51 @@ public class EvolveAdaptiveOscillator {
                     avgScore += thisTrialScore / MAX_TRIALS;
                 }
             }
+            if(fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
 //            return productScore;
             return avgScore;// + MAX_TRIALS * productScore;
         }
     }
 
-    public static void main(String[] args) throws InvalidConfigurationException, IOException {
+    public static void main(String[] args) throws InvalidConfigurationException, IOException, ClassNotFoundException {
+//        generateGraph();
+        evolve();
+    }
 
+    public static void generateGraph() throws IOException, ClassNotFoundException {
+        String destDir = "/Users/olliebown/Desktop";
+        //read in CTRNN
+        FileInputStream fis = new FileInputStream(new File(destDir + "/fittest_gen495"));
+        ObjectInputStream ois = new ObjectInputStream(fis);
+        JCtrnn ctrnn = (JCtrnn)ois.readObject();
+        ois.close();
+        fis.close();
+        //create the fitness function
+        FitnessFunc fitnessFunc = new FitnessFunc(ctrnn.params);
+        //run it
+        fitnessFunc.evaluatePrint(ctrnn, true, destDir + "/fittest_graph.csv");
+    }
+
+    public static void evolve() throws InvalidConfigurationException, IOException {
         String destDir = "out/output data";
-
         //create JCTRNN params
         JCtrnn.Params params = JCtrnn.Params.getDefault();
         params.inTransferFunc = JLi.TransferFunction.TANH;
         params.hTransferFunc = JLi.TransferFunction.TANH;
         params.numInputNodes = 3;
-        params.numHiddenNodes = 8;
+        params.numHiddenNodes = 10;
         params.numOutputNodes = 1;
-
+        //???? try it out
+        params.hTcMin = -0.4f;
+        params.hTcMax = 4.0f;
         //create the fitness function
         FitnessFunc fitnessFunc = new FitnessFunc(params);
-
         //use JGAP to evolve
         Configuration conf = new DefaultConfiguration();
         conf.setPreservFittestIndividual(true);
@@ -144,12 +186,20 @@ public class EvolveAdaptiveOscillator {
             IChromosome fittest = pop.getFittestChromosome();
             JCtrnn ctrnn = new JCtrnn(com.olliebown.ctrnn.Chromosome.fromJGAPChromosome(fittest), params);
             oos.writeObject(ctrnn);
+            oos.close();
+            fos.close();
+            //also write the chromosome
+            FileOutputStream fos2 = new FileOutputStream(new File(destDir + "/fittest_gen_chromosome" + i));
+            ObjectOutputStream oos2 = new ObjectOutputStream(fos2);
+            oos2.writeObject(fittest);
+            oos2.close();
+            fos2.close();
             pop.evolve();
             // add current best fitness to chart
             double fitness = fittest.getFitnessValue();
             System.out.println("fitness: " + fitness);
             System.out.println("------------------------------");
-            fitnessFunc.evaluatePrint(fittest, true);
+            fitnessFunc.evaluatePrint(ctrnn, true, null);
         }
 
     }
