@@ -159,11 +159,11 @@ public class EvolveAdaptiveOscillator {
         params.inTransferFunc = JLi.TransferFunction.TANH;
         params.hTransferFunc = JLi.TransferFunction.TANH;
         params.numInputNodes = 3;
-        params.numHiddenNodes = 10;
+        params.numHiddenNodes = 8;
         params.numOutputNodes = 1;
         //???? try it out
-        params.hTcMin = -0.4f;
-        params.hTcMax = 4.0f;
+        params.hTcMin = -0.3f;
+        params.hTcMax = 3.0f;
         //create the fitness function
         FitnessFunc fitnessFunc = new FitnessFunc(params);
         //use JGAP to evolve
