@@ -91,16 +91,18 @@ public class EvolveAdaptiveOscillator {
                 if(print) {
                     System.out.println("               - Period " + periodInTimeSteps + ", Measured " + measuredPeriodInTimeSteps + " (count " + stats.getN() + ", stdev " + stats.getStandardDeviation() + ")");
                 }
-                if(measuredPeriodInTimeSteps == 0) {
+                if(measuredPeriodInTimeSteps == 0 || Double.isNaN(measuredPeriodInTimeSteps) || Double.isInfinite(measuredPeriodInTimeSteps)) {
                     thisTrialScore = 0;
                 } else {
                     thisTrialScore = 1f - (Math.abs(periodInTimeSteps - measuredPeriodInTimeSteps) / 10000f);
                     thisTrialScore = Math.max(thisTrialScore, 0);
                     thisTrialScore = Math.min(thisTrialScore, 1);
-                    thisTrialScore = (float)Math.pow(thisTrialScore, 2);
+                    thisTrialScore = Math.pow(thisTrialScore, 2);
                 }
-                productScore *= thisTrialScore;
-                avgScore += thisTrialScore / MAX_TRIALS;
+                if(!Double.isNaN(thisTrialScore) && !Double.isInfinite(thisTrialScore)) {
+                    productScore *= thisTrialScore;
+                    avgScore += thisTrialScore / MAX_TRIALS;
+                }
             }
 //            return productScore;
             return avgScore;// + MAX_TRIALS * productScore;
