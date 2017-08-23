@@ -1,0 +1,4 @@
+rootProject.name = 'CloudGen'
+
+include ':PatternSpace'
+project(':PatternSpace').projectDir = new File(settingsDir, '../PatternSpace')

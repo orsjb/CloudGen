@@ -2,7 +2,7 @@ package com.olliebown.evolution;
 
 import com.olliebown.ctrnn.JCtrnn;
 import com.olliebown.ctrnn.JLi;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.jgap.*;
 import org.jgap.impl.DefaultConfiguration;
 import org.jgap.impl.DoubleGene;
