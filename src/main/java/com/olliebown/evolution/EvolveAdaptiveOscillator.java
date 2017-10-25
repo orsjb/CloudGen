@@ -1,7 +1,8 @@
 package com.olliebown.evolution;
 
-import com.olliebown.ctrnn.JCtrnn;
-import com.olliebown.ctrnn.JLi;
+import net.happybrackets.patternspace.dynamic_system.ctrnn.Chromosome;
+import net.happybrackets.patternspace.dynamic_system.ctrnn.Ctrnn;
+import net.happybrackets.patternspace.dynamic_system.ctrnn.CtrnnNode;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.jgap.*;
 import org.jgap.impl.DefaultConfiguration;
@@ -22,20 +23,20 @@ public class EvolveAdaptiveOscillator {
 
     public static class FitnessFunc extends FitnessFunction {
 
-        JCtrnn.Params params;
+        Ctrnn.Params params;
 
-        public FitnessFunc(JCtrnn.Params params) {
+        public FitnessFunc(Ctrnn.Params params) {
             this.params = params;
         }
 
         @Override
         protected double evaluate(IChromosome a_subject) {
 
-            JCtrnn ctrnn = new JCtrnn(com.olliebown.ctrnn.Chromosome.fromJGAPChromosome(a_subject), params);
+            Ctrnn ctrnn = new Ctrnn(Chromosome.fromJGAPChromosome(a_subject), params);
             return evaluatePrint(ctrnn, false, null);
         }
 
-        public double evaluatePrint(JCtrnn ctrnn, boolean print, String graphOutput) {
+        public double evaluatePrint(Ctrnn ctrnn, boolean print, String graphOutput) {
             FileOutputStream fos = null;
             PrintStream ps = null;
             if(graphOutput != null && !graphOutput.equals("")) {
@@ -59,16 +60,16 @@ public class EvolveAdaptiveOscillator {
                 float phaseX = rng.nextFloat();
                 float phaseY = rng.nextFloat();
                 float phaseZ = rng.nextFloat();
-                float[] outputData = new float[DRIVE_TIME+RUN_TIME];
+                double[] outputData = new double[DRIVE_TIME+RUN_TIME];
                 //3-axis data, normalised
                 int t;
-                float[] inputs = new float[3];
+                Number[] inputs = new Number[3];
                 for(t = 0; t < DRIVE_TIME; t++) {
                     inputs[0] = (float)(Math.sin((t / (float)periodInTimeSteps + phaseX) * TWO_PI));
                     inputs[1] = (float)(Math.sin((t / (float)periodInTimeSteps + phaseY) * TWO_PI));
                     inputs[2] = (float)(Math.sin((t / (float)periodInTimeSteps + phaseZ) * TWO_PI));
                     ctrnn.update(inputs);
-                    float out = ctrnn.getOutput(0);
+                    double out = ctrnn.getOutput(0);
 //                    outputData[t] = out;                  //don't collect on driving phase
                     if(ps != null) {
                         ps.println(t + "," + inputs[0] + "," + inputs[1] + "," + inputs[2] + "," + out);
@@ -80,7 +81,7 @@ public class EvolveAdaptiveOscillator {
                 inputs[2] = 0;//rng.nextFloat() * 2f - 1f;
                 for(; t < RUN_TIME+DRIVE_TIME; t++) {
                     ctrnn.update(inputs);
-                    float out = ctrnn.getOutput(0);
+                    double out = ctrnn.getOutput(0);
                     outputData[t] = out;
                     if(ps != null) {
                         ps.println(t + "," + inputs[0] + "," + inputs[1] + "," + inputs[2] + "," + out);
@@ -91,7 +92,7 @@ public class EvolveAdaptiveOscillator {
                 //work out the period of the CTRNN oscillations
                 //OK just to look at zero xxings.
                 int lastXing = -1;
-                float lastVal = outputData[0];
+                double lastVal = outputData[0];
                 DescriptiveStatistics stats = new DescriptiveStatistics();
                 for(t = 1; t < RUN_TIME+DRIVE_TIME; t++) {
                     //just look at - to + zeroxings?
@@ -143,7 +144,7 @@ public class EvolveAdaptiveOscillator {
         //read in CTRNN
         FileInputStream fis = new FileInputStream(new File(destDir + "/fittest_gen495"));
         ObjectInputStream ois = new ObjectInputStream(fis);
-        JCtrnn ctrnn = (JCtrnn)ois.readObject();
+        Ctrnn ctrnn = (Ctrnn)ois.readObject();
         ois.close();
         fis.close();
         //create the fitness function
@@ -154,10 +155,10 @@ public class EvolveAdaptiveOscillator {
 
     public static void evolve() throws InvalidConfigurationException, IOException {
         String destDir = "out/output data";
-        //create JCTRNN params
-        JCtrnn.Params params = JCtrnn.Params.getDefault();
-        params.inTransferFunc = JLi.TransferFunction.TANH;
-        params.hTransferFunc = JLi.TransferFunction.TANH;
+        //create Ctrnn params
+        Ctrnn.Params params = Ctrnn.Params.getDefault();
+        params.inTransferFunc = CtrnnNode.TransferFunction.TANH;
+        params.hTransferFunc = CtrnnNode.TransferFunction.TANH;
         params.numInputNodes = 3;
         params.numHiddenNodes = 8;
         params.numOutputNodes = 1;
@@ -174,7 +175,7 @@ public class EvolveAdaptiveOscillator {
         for(int i = 0; i < sampleGenes.length; i++) {
             sampleGenes[i] = new DoubleGene(conf, 0, 1);
         }
-        Chromosome sampleChromosome = new Chromosome(conf, sampleGenes);
+        org.jgap.Chromosome sampleChromosome = new org.jgap.Chromosome(conf, sampleGenes);
         conf.setSampleChromosome(sampleChromosome);
         conf.setPopulationSize(100);
         Genotype pop = Genotype.randomInitialGenotype(conf);
@@ -184,7 +185,7 @@ public class EvolveAdaptiveOscillator {
             FileOutputStream fos = new FileOutputStream(new File(destDir + "/fittest_gen" + i));
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             IChromosome fittest = pop.getFittestChromosome();
-            JCtrnn ctrnn = new JCtrnn(com.olliebown.ctrnn.Chromosome.fromJGAPChromosome(fittest), params);
+            Ctrnn ctrnn = new Ctrnn(Chromosome.fromJGAPChromosome(fittest), params);
             oos.writeObject(ctrnn);
             oos.close();
             fos.close();
