@@ -1,8 +1,13 @@
 package com.olliebown.evolution;
 
+import com.olliebown.evaluation.AudioSimulationEnvironment;
+
 public class RunTest1 {
 
     public static void main(String[] args) {
-        System.out.println("Hello World");
+
+        AudioSimulationEnvironment env = new AudioSimulationEnvironment();
+        env.loadAudioData("data/Redgate");
+
     }
 }
