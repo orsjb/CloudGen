@@ -1,10 +1,8 @@
 package com.olliebown.evaluation;
 
-import net.happybrackets.patternspace.dynamic_system.core.DynamicSystem;
+public interface EvaluationMetric<T> {
 
-public interface EvaluationMetric {
-
-    public double[] getMetric(DynamicSystem ds);
+    public double[] getMetric(T input);
     public String[] getMetricInfo();
 
 }

@@ -16,6 +16,7 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile group: 'net.sf.jgap', name: 'jgap', version: '3.4.4'
+    compile group: 'org.moeaframework', name: 'moeaframework', version: '2.6'
     compile group: 'org.apache.commons', name: 'commons-math3', version: '3.0'
     compile project(':PatternSpace')
 }
