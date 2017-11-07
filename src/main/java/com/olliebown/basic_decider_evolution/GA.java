@@ -13,7 +13,7 @@ public class GA {
 
 	public static void main(String[] args) {
 
-		File dataFolder = new File("../EvolvedObjects/" + new Date().toString());
+		File dataFolder = new File("../EvolvedObjects/" + new Date().toString().replace(" ", "_"));
 		dataFolder.mkdir();
 		String dir = dataFolder.getAbsolutePath();
 		
