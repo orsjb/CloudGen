@@ -22,7 +22,12 @@ public class MaximiseVarianceFitnessFunction implements FitnessFunction {
         //results now contains all of the system output from the multiple runs
         MultiRunOutputVariance evaluator = new MultiRunOutputVariance();
         double[] metric = evaluator.getMetric(results);
-        double fitness = metric[0];
+        double average = 0;
+        for(int i = 0; i < metric.length; i++) {
+            average += metric[i];
+        }
+        average /= metric.length;
+        double fitness = average;
         return fitness;
     }
 
