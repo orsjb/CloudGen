@@ -11,7 +11,7 @@ import java.util.List;
 public class MultiRunOutputVariance implements EvaluationMetric<List<Number[][]>> {
 
     int numChunkSizes = 10;
-    int chunkSizeStep = 50;
+    int chunkSizeStep = 200;
 
     @Override
     public double[] getMetric(List<Number[][]> dsOutput) {
@@ -21,14 +21,11 @@ public class MultiRunOutputVariance implements EvaluationMetric<List<Number[][]>
         //doing this across multiple chunk sizes
         for(int chunkIndex = 0; chunkIndex < numChunkSizes; chunkIndex++) {
             int chunkSize = (chunkIndex + 1) * chunkSizeStep;
-
             List<double[]> chunkCentroids = new ArrayList<>();
             double[] currentChunkCentroid = null;
-
             //run a sliding window over all the data with this chunk size
             for(int run = 0; run < dsOutput.size(); run++) {
                 Number[][] runData = dsOutput.get(run);
-
                 for(int t = 0; t < runData.length; t++) {
                     if(t % chunkSize == 0) {
                         if(currentChunkCentroid != null) {
@@ -40,7 +37,9 @@ public class MultiRunOutputVariance implements EvaluationMetric<List<Number[][]>
                         }
                     }
                     Number[] features = runData[t];
+                    System.out.println("Features length is " + features.length);
                     for(int i = 0; i < features.length; i++) {
+                        System.out.print(features[i].doubleValue() + " ");
                         currentChunkCentroid[i] += features[i].doubleValue() / chunkSize;
                     }
                 }
@@ -51,7 +50,9 @@ public class MultiRunOutputVariance implements EvaluationMetric<List<Number[][]>
             int count = 0;
             for(int i = 0; i < chunkCentroids.size(); i++) {
                 for(int j = 0; j < i; j++) {
-                    averageDistance += DynamicSystemUtils.distance(chunkCentroids.get(i), chunkCentroids.get(j));
+                    double dist = DynamicSystemUtils.distance(chunkCentroids.get(i), chunkCentroids.get(j));
+//                    System.out.println("Distance between chunks " + i + " and " + j + " (chunk size " + chunkSize + "): " + dist);
+                    averageDistance += dist;
                     count++;
                 }
             }
