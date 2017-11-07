@@ -1,4 +1,4 @@
-package com.olliebown.Sandpit;
+package com.olliebown.sandpit;
 
 import com.olliebown.evaluation.AudioSimulationEnvironment;
 

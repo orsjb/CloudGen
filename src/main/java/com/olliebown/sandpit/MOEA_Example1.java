@@ -1,4 +1,4 @@
-package com.olliebown.Sandpit;
+package com.olliebown.sandpit;
 
 /* Copyright 2009-2016 David Hadka
  *

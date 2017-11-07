@@ -1,4 +1,4 @@
-package com.olliebown.Sandpit;
+package com.olliebown.sandpit;
 
 import net.happybrackets.patternspace.dynamic_system.ctrnn.Chromosome;
 import net.happybrackets.patternspace.dynamic_system.ctrnn.Ctrnn;

@@ -1,13 +1,8 @@
-package com.olliebown.Sandpit;
+package com.olliebown.sandpit;
 
 import org.moeaframework.core.Solution;
-import org.moeaframework.core.variable.Grammar;
 import org.moeaframework.core.variable.Program;
 import org.moeaframework.problem.AbstractProblem;
-import org.moeaframework.util.grammar.ContextFreeGrammar;
-import org.moeaframework.util.grammar.Production;
-import org.moeaframework.util.grammar.Rule;
-import org.moeaframework.util.grammar.Symbol;
 import org.moeaframework.util.tree.IfElse;
 import org.moeaframework.util.tree.Rules;
 
