@@ -37,9 +37,9 @@ public class MultiRunOutputVariance implements EvaluationMetric<List<Number[][]>
                         }
                     }
                     Number[] features = runData[t];
-                    System.out.println("Features length is " + features.length);
+//                    System.out.println("Features length is " + features.length);
                     for(int i = 0; i < features.length; i++) {
-                        System.out.print(features[i].doubleValue() + " ");
+//                        System.out.print(features[i].doubleValue() + " ");
                         currentChunkCentroid[i] += features[i].doubleValue() / chunkSize;
                     }
                 }
