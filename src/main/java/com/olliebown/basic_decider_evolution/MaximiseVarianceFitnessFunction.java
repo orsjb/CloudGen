@@ -1,6 +1,7 @@
 package com.olliebown.basic_decider_evolution;
 
 import com.olliebown.evaluation.AudioSimulationEnvironment;
+import com.olliebown.evaluation.metrics.AverageMovement;
 import com.olliebown.evaluation.metrics.MultiRunOutputVariance;
 import net.happybrackets.patternspace.dynamic_system.core.DynamicSystem;
 
@@ -22,12 +23,14 @@ public class MaximiseVarianceFitnessFunction implements FitnessFunction {
         //results now contains all of the system output from the multiple runs
         MultiRunOutputVariance evaluator = new MultiRunOutputVariance();
         double[] metric = evaluator.getMetric(results);
+        AverageMovement evaluator2 = new AverageMovement();
+        double[] metric2 = evaluator2.getMetric(results);
         double average = 0;
         for(int i = 0; i < metric.length; i++) {
             average += metric[i];
         }
         average /= metric.length;
-        double fitness = average;
+        double fitness = average * metric2[0];
         return fitness;
     }
 
