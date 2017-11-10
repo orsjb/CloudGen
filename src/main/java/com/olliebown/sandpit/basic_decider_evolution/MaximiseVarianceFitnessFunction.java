@@ -1,4 +1,4 @@
-package com.olliebown.basic_decider_evolution;
+package com.olliebown.sandpit.basic_decider_evolution;
 
 import com.olliebown.evaluation.AudioSimulationEnvironment;
 import com.olliebown.evaluation.metrics.AverageMovement;

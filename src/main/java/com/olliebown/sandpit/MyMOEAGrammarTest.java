@@ -1,6 +1,7 @@
 package com.olliebown.sandpit;
 
 import net.happybrackets.patternspace.dynamic_system.decider.Decider;
+import net.happybrackets.patternspace.dynamic_system.decider.Operation;
 import org.moeaframework.core.Solution;
 import org.moeaframework.core.variable.Grammar;
 import org.moeaframework.problem.AbstractProblem;
@@ -21,13 +22,7 @@ public class MyMOEAGrammarTest {
             super(1, 1);
             grammar = Parser
                     .load(new StringReader(
-                            "<expr> ::= (<decision>)\n"
-                                    + "<node> ::= (<decision>)|(<leaf>)\n"
-                                    + "<decision> ::= D <index>,<thresh>,<node>,<node>\n"
-                                    + "<index> ::= '0'|'1'|'2'|'3'|'4'|'5'|'6'|'7'|'8'|'9'|'10'|'11'|'12'|'13'|'14'|'15'|'16'|'17'|'18'|'19'\n"
-                                    + "<thresh> ::= '0.0'|'0.1'|'0.2'|'0.3'|'0.3'|'0.4'|'0.5'|'0.6'|'0.7'|'0.8'|'0.9'|'1.0'\n"
-                                    + "<leaf> ::= <index>,<op>,<index>|<leaf>,<leaf>\n"
-                                    + "<op> ::= '*'|'+'|'-'\n"));
+                            Decider.GRAMMAR));
         }
 
         @Override
@@ -37,7 +32,7 @@ public class MyMOEAGrammarTest {
             //now build the decider from the grammar function
             Decider d = Decider.parseFromString(6, 20, grammarFunction, new Random());
 
-            //TODO measure the Decider!
+            //TODO fitness function goes here
 
             double result = 0;
             solution.setObjective(0, result);
@@ -55,23 +50,32 @@ public class MyMOEAGrammarTest {
     public static void main(String[] args) throws Exception {
         ContextFreeGrammar grammar = Parser
                 .load(new StringReader(
-                        "<expr> ::= (<decision>)\n"
-                                + "<node> ::= (<decision>)|(<leaf>)\n"
-                                + "<decision> ::= D <index>,<thresh>,<node>,<node>\n"
-                                + "<index> ::= '0'|'1'|'2'|'3'|'4'|'5'|'6'|'7'|'8'|'9'|'10'|'11'|'12'|'13'|'14'|'15'|'16'|'17'|'18'|'19'\n"
-                                + "<thresh> ::= '0.0'|'0.1'|'0.2'|'0.3'|'0.3'|'0.4'|'0.5'|'0.6'|'0.7'|'0.8'|'0.9'|'1.0'\n"
-                                + "<leaf> ::= <index>,<op>,<index>|<leaf>,<leaf>\n"
-                                + "<op> ::= '*'|'+'|'-'\n"));
+                        Decider.GRAMMAR));
 
-        Grammar g = new Grammar(100);
+        Grammar g = new Grammar(1000);
         g.randomize();
         int[] codon = g.toArray();
-        if(grammar != null) {
-            String s = grammar.build(codon);
-            System.out.println(s);
-        } else {
-            System.out.println("Grammar = null");
+        String s = grammar.build(codon);
+        if(s != null) {
+            System.out.println(s);          //why does this sometimes return null?
+            Decider d = Decider.parseFromString(6, 20, s, new Random());
+            Number[] input = new Number[6];
+            for(int i = 0; i < input.length; i++) {
+                input[i] = 0;
+            }
+            d.randomiseState();
+            for(int i = 0; i < 1000; i++) {
+                d.update(input);
+                Number[] output = d.getOutputs();
+                for(Number n : output) {
+                    System.out.print(n + " ");
+                }
+                System.out.println();
+
+            }
         }
+
+
     }
 
 
