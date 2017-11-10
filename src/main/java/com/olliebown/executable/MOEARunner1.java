@@ -25,10 +25,12 @@ public class MOEARunner1 {
             @Override
             public double[] evalute(List<Number[][]> outputData) {
                 double[] results = new double[5];
-                AverageMovement metric1 = new AverageMovement();
-                results[0] = -1 * metric1.getMetric(outputData)[0];
-                MultiRunOutputVariance metric2 = new MultiRunOutputVariance();
-                results[1] = -1 * metric2.getMetric(outputData)[0];
+                if(outputData != null) {
+                    AverageMovement metric1 = new AverageMovement();
+                    results[0] = -1 * metric1.getMetric(outputData)[0];
+                    MultiRunOutputVariance metric2 = new MultiRunOutputVariance();
+                    results[1] = -1 * metric2.getMetric(outputData)[0];
+                }
                 return results;
             }
         };

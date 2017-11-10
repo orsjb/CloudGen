@@ -17,8 +17,11 @@ public abstract class DeciderMOEAProblem extends AbstractProblem {
     @Override
     public void evaluate(Solution solution) {
         Decider d = DeciderMOEAGrammar.generateDecider(solution);
-        AudioSimulationEnvironment env = new AudioSimulationEnvironment();
-        List<Number[][]> outputData = env.generateAllOutputData(d);
+        List<Number[][]> outputData = null;
+        if(d != null) {
+            AudioSimulationEnvironment env = new AudioSimulationEnvironment();
+            outputData = env.generateAllOutputData(d);
+        }
         double[] results = evalute(outputData);
         for(int i = 0; i < results.length; i++) {
             solution.setObjective(i, results[i]);
