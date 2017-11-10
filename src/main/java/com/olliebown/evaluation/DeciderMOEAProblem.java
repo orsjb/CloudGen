@@ -10,8 +10,12 @@ import java.util.List;
 
 public abstract class DeciderMOEAProblem extends AbstractProblem {
 
-    public DeciderMOEAProblem() throws IOException {
-        super(1, 1);
+    AudioSimulationEnvironment env;
+
+    public DeciderMOEAProblem(int numObjectives, String audioDir) throws IOException {
+        super(1, numObjectives);
+        env = new AudioSimulationEnvironment();
+        env.loadAudioData(audioDir);
     }
 
     @Override
@@ -19,7 +23,6 @@ public abstract class DeciderMOEAProblem extends AbstractProblem {
         Decider d = DeciderMOEAGrammar.generateDecider(solution);
         List<Number[][]> outputData = null;
         if(d != null) {
-            AudioSimulationEnvironment env = new AudioSimulationEnvironment();
             outputData = env.generateAllOutputData(d);
         }
         double[] results = evalute(outputData);
@@ -32,7 +35,7 @@ public abstract class DeciderMOEAProblem extends AbstractProblem {
 
     @Override
     public Solution newSolution() {
-        Solution solution = new Solution(1, 1);
+        Solution solution = new Solution(1, numberOfObjectives);
         solution.setVariable(0, new Grammar(10));
         return solution;
     }

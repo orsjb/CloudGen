@@ -21,10 +21,10 @@ public class MOEARunner1 {
 
         FileUtil util = new FileUtil();
 
-        DeciderMOEAProblem theProblem = new DeciderMOEAProblem() {
+        DeciderMOEAProblem theProblem = new DeciderMOEAProblem(2, "data/Redgate") {
             @Override
             public double[] evalute(List<Number[][]> outputData) {
-                double[] results = new double[5];
+                double[] results = new double[numberOfObjectives];
                 if(outputData != null) {
                     AverageMovement metric1 = new AverageMovement();
                     results[0] = -1 * metric1.getMetric(outputData)[0];
@@ -36,17 +36,22 @@ public class MOEARunner1 {
         };
 
         Properties properties = new Properties();
-        properties.setProperty("populationSize", "10");
+        properties.setProperty("populationSize", "100");
         Algorithm algorithm = AlgorithmFactory.getInstance().getAlgorithm(
                 "NSGAII", properties, theProblem);
 
         int steps = 20000;
-        for(int i = 0; i < steps; i += 100) {
+        for(int i = 0; i < steps; i++) {
             algorithm.step();
-            NondominatedPopulation population = algorithm.getResult();
-            Solution s = population.get(0);
-            Decider d = DeciderMOEAGrammar.generateDecider(s);
-            util.write(d, i);
+            if (i % 100 == 0) {
+                NondominatedPopulation population = algorithm.getResult();
+                for(int sol = 0; sol < population.size(); sol++) {
+                    Solution s = population.get(sol);
+                    Decider d = DeciderMOEAGrammar.generateDecider(s);
+                    util.write(d, "gen" + i + "#" + sol);
+                }
+                System.out.println("Step " + i + ", " + population.get(0).getObjective(0));
+            }
         }
 
         //write the results?

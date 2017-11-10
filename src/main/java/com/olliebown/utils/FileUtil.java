@@ -18,9 +18,9 @@ public class FileUtil {
         dir = dataFolder.getAbsolutePath();
     }
 
-    public void write(Serializable object, int generation) {
+    public void write(Serializable object, String name) {
         try {
-            FileOutputStream fos = new FileOutputStream(new File(dir + "/gen" + generation));
+            FileOutputStream fos = new FileOutputStream(new File(dir + "/" + name));
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(object);
             oos.close();

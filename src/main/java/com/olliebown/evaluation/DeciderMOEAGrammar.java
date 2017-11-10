@@ -27,6 +27,9 @@ public abstract class DeciderMOEAGrammar {
         int[] codon = ((Grammar)s.getVariable(0)).toArray();
         String grammarFunction = grammar.build(codon);
         //now build the decider from the grammar function
+        if(grammarFunction == null) {
+            return null;
+        }
         Decider d = Decider.parseFromString(6, 20, grammarFunction, new Random());
         return d;
     }
