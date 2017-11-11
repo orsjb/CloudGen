@@ -4,6 +4,7 @@ import net.happybrackets.patternspace.dynamic_system.decider.Decider;
 import net.happybrackets.patternspace.dynamic_system.decider.Operation;
 import org.moeaframework.core.Solution;
 import org.moeaframework.core.variable.Grammar;
+import org.moeaframework.core.variable.RealVariable;
 import org.moeaframework.problem.AbstractProblem;
 import org.moeaframework.util.grammar.*;
 

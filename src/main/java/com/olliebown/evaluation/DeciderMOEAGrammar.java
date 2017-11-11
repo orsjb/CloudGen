@@ -3,6 +3,7 @@ package com.olliebown.evaluation;
 import net.happybrackets.patternspace.dynamic_system.decider.Decider;
 import org.moeaframework.core.Solution;
 import org.moeaframework.core.variable.Grammar;
+import org.moeaframework.core.variable.RealVariable;
 import org.moeaframework.util.grammar.ContextFreeGrammar;
 import org.moeaframework.util.grammar.Parser;
 
