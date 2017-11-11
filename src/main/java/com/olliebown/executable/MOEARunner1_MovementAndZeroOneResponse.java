@@ -36,7 +36,7 @@ public class MOEARunner1_MovementAndZeroOneResponse {
                     PureResponseToOnesAndZeros metric2 = new PureResponseToOnesAndZeros();
                     results[1] = -1 * metric2.getMetric(d)[0];
                     MultiRunOutputVariance metric3 = new MultiRunOutputVariance();
-                    results[3] = -1 * metric3.getMetric(outputData)[0];
+                    results[2] = -1 * metric3.getMetric(outputData)[0];
                 }
                 return results;
             }
