@@ -15,6 +15,7 @@ public class FileUtil {
         }
         File dataFolder = new File(mainObjectsDir + "/" + new Date().toString().
                 replace(" ", "_").
+                replace(":", "").
                 replace("/", ""));
         dataFolder.mkdir();
         dir = dataFolder.getAbsolutePath();
