@@ -24,13 +24,13 @@ public class PureResponseToOnesAndZeros implements EvaluationMetric<DynamicSyste
     public double[] getMetric(DynamicSystem dynamicSystem) {
         double result = 0;
         int steps = 100;
-        double[] zerosCentroid = new double[DynamicSystemUtils.getOutputs(dynamicSystem, Double.class).length];
-        double[] onesCentroid = new double[DynamicSystemUtils.getOutputs(dynamicSystem, Double.class).length];
+        double[] zerosCentroid = new double[DynamicSystemUtils.getOutputs(dynamicSystem.getOutputs(), Double.class).length];
+        double[] onesCentroid = new double[DynamicSystemUtils.getOutputs(dynamicSystem.getOutputs(), Double.class).length];
         //the zeroes
         dynamicSystem.reset();
         for(int i = 0; i < steps; i++) {
             dynamicSystem.update(zerosInput);
-            Number[] outputs = DynamicSystemUtils.getOutputs(dynamicSystem, Double.class);
+            Number[] outputs = DynamicSystemUtils.getOutputs(dynamicSystem.getOutputs(), Double.class);
             for(int j = 0; j < zerosCentroid.length; j++) {
                 zerosCentroid[j] += outputs[j].doubleValue() / steps;
             }
@@ -39,7 +39,7 @@ public class PureResponseToOnesAndZeros implements EvaluationMetric<DynamicSyste
         dynamicSystem.reset();
         for(int i = 0; i < steps; i++) {
             dynamicSystem.update(onesInput);
-            Number[] outputs = DynamicSystemUtils.getOutputs(dynamicSystem, Double.class);
+            Number[] outputs = DynamicSystemUtils.getOutputs(dynamicSystem.getOutputs(), Double.class);
             for(int j = 0; j < onesCentroid.length; j++) {
                 onesCentroid[j] += outputs[j].doubleValue() / steps;
             }

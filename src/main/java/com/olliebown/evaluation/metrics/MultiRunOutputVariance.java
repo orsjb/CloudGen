@@ -27,16 +27,17 @@ public class MultiRunOutputVariance implements EvaluationMetric<List<Number[][]>
             for(int run = 0; run < dsOutput.size(); run++) {
                 Number[][] runData = dsOutput.get(run);
                 for(int t = 0; t < runData.length; t++) {
+                    Number[] features = DynamicSystemUtils.getOutputs(runData[t], Double.class);
                     if(t % chunkSize == 0) {
                         if(currentChunkCentroid != null) {
                             chunkCentroids.add(currentChunkCentroid);
                         }
-                        currentChunkCentroid = new double[runData[t].length];
+                        currentChunkCentroid = new double[features.length];
                         if(runData.length - t < chunkSize) {
                             break;
                         }
                     }
-                    Number[] features = runData[t];
+
 //                    System.out.println("Features length is " + features.length);
                     for(int i = 0; i < features.length; i++) {
 //                        System.out.print(features[i].doubleValue() + " ");

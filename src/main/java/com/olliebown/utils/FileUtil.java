@@ -21,6 +21,16 @@ public class FileUtil {
         dir = dataFolder.getAbsolutePath();
     }
 
+    public void writeText(String text, String name) {
+        try {
+            PrintStream ps = new PrintStream(new File(dir + "/" + name));
+            ps.print(text);
+            ps.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void write(Serializable object, String name) {
         try {
             FileOutputStream fos = new FileOutputStream(new File(dir + "/" + name));

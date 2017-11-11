@@ -47,7 +47,8 @@ public class AudioSimulationEnvironment {
         Number[][] outputData = new Number[inputData.length][];
         for(int i = 0; i < inputData.length; i++) {
             ds.update(inputData[i]);
-            outputData[i] = DynamicSystemUtils.getOutputs(ds, Double.class);
+//            outputData[i] = DynamicSystemUtils.getOutputs(ds, Double.class);
+            outputData[i] = ds.getOutputs().clone();
         }
         return outputData;
     }

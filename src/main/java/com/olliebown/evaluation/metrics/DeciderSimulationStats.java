@@ -1,4 +1,4 @@
-package com.olliebown.sandpit.basic_decider_evolution;
+package com.olliebown.evaluation.metrics;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -8,21 +8,67 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.olliebown.evaluation.EvaluationMetric;
+import net.happybrackets.patternspace.dynamic_system.core.DynamicSystem;
+import net.happybrackets.patternspace.dynamic_system.core.DynamicSystemUtils;
 import net.happybrackets.patternspace.dynamic_system.decider.Decider;
 import org.jfree.data.general.Dataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-public class DeciderSimulationStats {
+public class DeciderSimulationStats implements EvaluationMetric<List<Number[][]>> {
 
+
+	@Override
+	public double[] getMetric(List<Number[][]> output) {
+        //run through the results calling notifyNodeEvent
+        for(Number[][] run : output) {
+            for(int i = 0; i < run.length; i++) {
+                Number[] stateOutputs = DynamicSystemUtils.getOutputs(run[i], Double.class);
+                double[] stateOutputsDbl = new double[stateOutputs.length];
+                for(int j = 0; j < stateOutputs.length; j++) {
+                    stateOutputsDbl[j] = stateOutputs[j].doubleValue();
+                }
+                int decisionOutput = (Integer)run[i][run[i].length - 1];        //last element should be the state output
+                notifyNodeEvent(decisionOutput, stateOutputsDbl);
+            }
+        }
+        doStats();
+        double[] result = new double[9];
+        result[0] = data.timeAtZeroNode;
+        result[1] = data.nodesVisited;
+        result[2] = data.medianNumVisits;
+        result[3] = data.maxNumVisits;
+        result[4] = data.numMinimallyShortHolds;
+        result[5] = data.changeRatio;
+        result[6] = data.medianMaxGapLength;
+        result[7] = data.traversalLinearity;
+        result[8] = data.entropy;
+        //calculate runStats, return DeciderSimulationStatsData as a double[]
+        return result;
+	}
+
+	@Override
+	public String[] getMetricInfo() {
+		return new String[] {
+		        "timeAtZeroNode",
+                "nodesVisited",
+                "medianNumVisits",
+                "maxNumVisits",
+                "numMinimallyShortHolds",
+                "changeRatio",
+                "medianMaxGapLength",
+                "traversalLinearity",
+                "entropy"
+        };
+	}
 
 	public static class DeciderSimulationStatsData implements Serializable {
 		
 		private static final long serialVersionUID = 1L;
 		
 		public int timeStepsRun;				//Total time
-		
-		
+
 		public float timeAtZeroNode;			//Total time spent at node zero
 		public float nodesVisited;				//Total number of nodes visited at least once
 		public float medianNumVisits;			//The median number of visits out of nodes visited at least once
@@ -40,19 +86,17 @@ public class DeciderSimulationStats {
 	Map<Integer, ArrayList<Integer>> nodeVisitTimes;
 	ArrayList<Integer> nodeAtTime;
 	Map<Integer, Integer> holdLengthHistogram;	//map of hold lengths to numbers of each hold length
-	public List<float[]> stateHistory = new ArrayList<float[]>();		//all states over time
-	Decider decider;
+	public List<double[]> stateHistory = new ArrayList<double[]>();		//all states over time
 
 	DeciderSimulationStatsData data = new DeciderSimulationStatsData();
 
-	public DeciderSimulationStats(Decider d) {
-		decider = d;
+	public DeciderSimulationStats() {
 		nodeVisitTimes = new Hashtable<Integer, ArrayList<Integer>>();
 		nodeAtTime = new ArrayList<Integer>();
 		data.timeStepsRun = 0;
 	}
 	
-	protected void notifyNodeEvent(int node) {
+	protected void notifyNodeEvent(int node, double[] state) {
 		ArrayList<Integer> visitTimes = nodeVisitTimes.get(node);
 		if(visitTimes == null) {
 			visitTimes = new ArrayList<Integer>();
@@ -61,12 +105,6 @@ public class DeciderSimulationStats {
 		visitTimes.add(data.timeStepsRun);
 		nodeAtTime.add(node);
 		//grab the state from the decider (hidden elements only)
-		float[] state = new float[decider.getNumHiddenElements()];
-//		System.out.print("Decider num hidden elements " + state.length +  ":   " );
-		for(int i = 0; i < decider.getNumHiddenElements(); i++) {
-			state[i] = decider.getOutputs()[i].floatValue();
-//			System.out.print(state[i] + " " );
-		}
 		stateHistory.add(state);
 //		System.out.println();
 		data.timeStepsRun++;
@@ -142,9 +180,9 @@ public class DeciderSimulationStats {
 				gapsForIndex.add(gapLength);
 			}
 			lastTimeVisited.put(i, time);
-			float nodeAsFract = (float)i / (float)decider.getNumLeaves();
-			float timeAsFract = (float)time / (float)data.timeStepsRun;
-			data.traversalLinearity += Math.pow(1f - Math.abs(nodeAsFract - timeAsFract) / 2f, 2f);
+			float nodeAsFract = (float)i;
+			float timeAsFract = (float)time;
+			data.traversalLinearity += Math.pow(1f - Math.abs((nodeAsFract - timeAsFract) / getTimeStepsRun()) / 2f, 2f);
 			time++;
 		}
 		data.traversalLinearity /= (float)nodeAtTime.size();
@@ -193,9 +231,8 @@ public class DeciderSimulationStats {
 	
 	public void printStats() {
 		System.out.println("Time Steps          : " + data.timeStepsRun);
-		System.out.println("Num nodes           : " + decider.getNumLeaves());
 		System.out.println("Time at zero        : " + data.timeAtZeroNode);
-		System.out.println("Nodes visited       : " + data.nodesVisited + " (" + ((float)data.nodesVisited / decider.getNumLeaves()) + ")");
+		System.out.println("Nodes visited       : " + data.nodesVisited + " (" + (float)data.nodesVisited + ")");
 		System.out.println("Median num visits   : " + data.medianNumVisits);
 		System.out.println("Maximum num visits  : " + data.maxNumVisits + " (" + (float)data.maxNumVisits / data.timeStepsRun + ")");
 		System.out.println("Change ratio        : " + data.changeRatio);
@@ -209,7 +246,7 @@ public class DeciderSimulationStats {
 	public String stateHistoryToGNUPlotString() {
 		StringBuffer buff = new StringBuffer();
 		int t = 0;
-		for(float[] state : stateHistory) {
+		for(double[] state : stateHistory) {
 			for(int i = 0; i < state.length; i++) {
 //				buff.append(t + " " + i + " " + state[i] + "\n");			//pm3d format
 				buff.append(state[i] + " ");
@@ -229,7 +266,7 @@ public class DeciderSimulationStats {
 	        dataset.addSeries(series[i]);
 		}
 		int t = 0;
-		for(float[] state : stateHistory) {
+		for(double[] state : stateHistory) {
 			for(int i = 0; i < state.length; i++) {
 				series[i].add(t, state[i]);
 			}
@@ -250,7 +287,6 @@ public class DeciderSimulationStats {
 	public String statsToGNUPlotString() {
 		StringBuffer buff = new StringBuffer();
 		buff.append(data.timeStepsRun + " ");
-		buff.append(decider.getNumLeaves() + " ");
 		buff.append(data.timeAtZeroNode + " ");
 		buff.append(data.nodesVisited + " ");
 		buff.append(data.medianNumVisits + " ");
