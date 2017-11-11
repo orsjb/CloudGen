@@ -13,7 +13,9 @@ public class FileUtil {
         if(!mainObjectsDirFile.exists()) {
             mainObjectsDirFile.mkdir();
         }
-        File dataFolder = new File(mainObjectsDir + "/" + new Date().toString().replace(" ", "_"));
+        File dataFolder = new File(mainObjectsDir + "/" + new Date().toString().
+                replace(" ", "_").
+                replace("/", ""));
         dataFolder.mkdir();
         dir = dataFolder.getAbsolutePath();
     }
@@ -26,6 +28,22 @@ public class FileUtil {
             oos.close();
             fos.close();
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void writeCSV(String file, Number[][] data) {
+        try {
+            PrintStream ps = new PrintStream(new File(file));
+            for(int i = 0; i < data.length; i++) {
+                for(int j = 0; j < data[i].length - 1; j++) {
+                    ps.print(data[i][j] + ",");
+                }
+                ps.println(data[i][data[i].length - 1]);
+            }
+
+            ps.close();
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
     }

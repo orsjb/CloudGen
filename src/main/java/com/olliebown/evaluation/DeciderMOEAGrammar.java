@@ -30,7 +30,7 @@ public abstract class DeciderMOEAGrammar {
         if(grammarFunction == null) {
             return null;
         }
-        Decider d = Decider.parseFromString(6, 20, grammarFunction, new Random());
+        Decider d = Decider.parseFromString(6, 26, grammarFunction, new Random());
         return d;
     }
 

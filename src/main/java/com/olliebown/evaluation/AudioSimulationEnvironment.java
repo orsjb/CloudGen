@@ -52,4 +52,9 @@ public class AudioSimulationEnvironment {
         return outputData;
     }
 
+    public List<Number[][]> getInputData() {
+        return inputData;
+    }
+
+
 }
