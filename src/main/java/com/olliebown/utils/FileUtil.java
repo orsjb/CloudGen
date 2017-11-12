@@ -5,7 +5,7 @@ import java.util.Date;
 
 public class FileUtil {
 
-    String dir;
+    public String dir;
 
     public FileUtil() {
         String mainObjectsDir = "../EvolvedObjects";

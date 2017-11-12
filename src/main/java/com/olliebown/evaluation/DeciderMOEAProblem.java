@@ -3,7 +3,6 @@ package com.olliebown.evaluation;
 import net.happybrackets.patternspace.dynamic_system.decider.Decider;
 import org.moeaframework.core.Solution;
 import org.moeaframework.core.variable.Grammar;
-import org.moeaframework.core.variable.RealVariable;
 import org.moeaframework.problem.AbstractProblem;
 
 import java.io.IOException;
@@ -26,13 +25,13 @@ public abstract class DeciderMOEAProblem extends AbstractProblem {
         if(d != null) {
             outputData = env.generateAllOutputData(d);
         }
-        double[] results = evalute(outputData, d);
+        double[] results = evaluate(outputData, d);
         for(int i = 0; i < results.length; i++) {
             solution.setObjective(i, results[i]);
         }
     }
 
-    public abstract double[] evalute(List<Number[][]> outputData, Decider d);
+    public abstract double[] evaluate(List<Number[][]> outputData, Decider d);
 
     @Override
     public Solution newSolution() {

@@ -2,10 +2,7 @@ package com.olliebown.executable;
 
 import com.olliebown.evaluation.DeciderMOEAGrammar;
 import com.olliebown.evaluation.DeciderMOEAProblem;
-import com.olliebown.evaluation.metrics.AverageMovement;
-import com.olliebown.evaluation.metrics.DeciderSimulationStats;
-import com.olliebown.evaluation.metrics.MultiRunOutputVariance;
-import com.olliebown.evaluation.metrics.PureResponseToOnesAndZeros;
+import com.olliebown.evaluation.metrics.*;
 import com.olliebown.utils.FileUtil;
 import net.happybrackets.patternspace.dynamic_system.decider.Decider;
 import org.moeaframework.core.Algorithm;
@@ -13,6 +10,8 @@ import org.moeaframework.core.NondominatedPopulation;
 import org.moeaframework.core.Solution;
 import org.moeaframework.core.spi.AlgorithmFactory;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
@@ -25,11 +24,15 @@ public class MOEARunner2_VeryManyParams {
     public static void main(String[] args) throws IOException {
 
         FileUtil util = new FileUtil();
-        util.write("MOEARunner2_VeryManyParams", "info.txt");
+        util.writeText("MOEARunner2_VeryManyParams", "info.txt");
 
-        DeciderMOEAProblem theProblem = new DeciderMOEAProblem(3+9, "data/Redgate") {
+        DeciderMOEAProblem theProblem = new DeciderMOEAProblem(4+9, "data/Redgate") {
+
+            int evalCount = 0;
+            long lastTime = 0;
+
             @Override
-            public double[] evalute(List<Number[][]> outputData, Decider d) {
+            public double[] evaluate(List<Number[][]> outputData, Decider d) {
                 double[] results = new double[numberOfObjectives];
                 if(outputData != null) {
                     AverageMovement metric1 = new AverageMovement();
@@ -38,12 +41,20 @@ public class MOEARunner2_VeryManyParams {
                     results[1] = -1 * metric2.getMetric(d)[0];
                     MultiRunOutputVariance metric3 = new MultiRunOutputVariance();
                     results[2] = -1 * metric3.getMetric(outputData)[0];
-                    DeciderSimulationStats metric4 = new DeciderSimulationStats();
-                    double[] stats = metric4.getMetric(outputData);
+                    SteadyRhythms metric4 = new SteadyRhythms();
+                    results[3] = -1 * metric4.getMetric(outputData)[0];
+                    DeciderSimulationStats metric5 = new DeciderSimulationStats();
+                    double[] stats = metric5.getMetric(outputData);
                     for(int i = 0; i < stats.length; i++) {
-                        results[2+i] = -1 * stats[i];
+                        results[3+i] = -1 * stats[i];
                     }
                 }
+                System.out.print("  - Evaluation result: " + evalCount++ + " -- ");
+                for(int i = 0; i < results.length; i++) {
+                    System.out.print(results[i] + " ");
+                }
+                System.out.println("Time = " + (System.currentTimeMillis() - lastTime));
+                lastTime = System.currentTimeMillis();
                 return results;
             }
         };
@@ -55,8 +66,11 @@ public class MOEARunner2_VeryManyParams {
         Algorithm algorithmSPEA2 = AlgorithmFactory.getInstance().getAlgorithm(
                 "SPEA2", properties, theProblem);
 
+        FileWriter metrics = new FileWriter(new File(util.dir + "/metrics.csv"));
+        metrics.write("Name,avg_mvmnt,pure_response,variance,stats1,stats2,stats3,stats4,stats5,stats6,stats7,stats8,stats9\n");
+
         int steps = 20000;
-        int writeInterval = 100;
+        int writeInterval = 10;
         for(int i = 0; i < steps; i++) {
             algorithmNSGAII.step();
             algorithmSPEA2.step();
@@ -66,7 +80,14 @@ public class MOEARunner2_VeryManyParams {
                 for(int sol = 0; sol < population.size(); sol++) {
                     Solution s = population.get(sol);
                     Decider d = DeciderMOEAGrammar.generateDecider(s);
-                    util.write(d,"gen_NSGAII" + i + "#" + sol);
+                    String name = "gen_NSGAII" + i + "#" + sol;
+                    util.write(d,name);
+                    metrics.write(name);
+                    for(int objective = 0; objective < s.getNumberOfObjectives(); objective++) {
+                        metrics.write("," + s.getObjective(objective));
+                    }
+                    metrics.write("\n");
+
                 }
                 System.out.println("Step NSGAII " + i + ", objective1=" + population.get(0).getObjective(0)
                         + ", objective2=" + population.get(0).getObjective(1));
@@ -75,13 +96,21 @@ public class MOEARunner2_VeryManyParams {
                 for(int sol = 0; sol < population.size(); sol++) {
                     Solution s = population.get(sol);
                     Decider d = DeciderMOEAGrammar.generateDecider(s);
-                    util.write(d,"gen_SPEA2" + i + "#" + sol);
+                    String name = "gen_SPEA2" + i + "#" + sol;
+                    util.write(d,name);
+                    metrics.write(name);
+                    for(int objective = 0; objective < s.getNumberOfObjectives(); objective++) {
+                        metrics.write("," + s.getObjective(objective));
+                    }
+                    metrics.write("\n");
                 }
                 System.out.println("Step SPEA2 " + i + ", objective1=" + population.get(0).getObjective(0)
                         + ", objective2=" + population.get(0).getObjective(1));
 
             }
         }
+
+        metrics.close();
 
     }
 

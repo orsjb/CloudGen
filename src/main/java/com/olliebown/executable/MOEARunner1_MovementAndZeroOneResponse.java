@@ -28,7 +28,7 @@ public class MOEARunner1_MovementAndZeroOneResponse {
 
         DeciderMOEAProblem theProblem = new DeciderMOEAProblem(3, "data/Redgate") {
             @Override
-            public double[] evalute(List<Number[][]> outputData, Decider d) {
+            public double[] evaluate(List<Number[][]> outputData, Decider d) {
                 double[] results = new double[numberOfObjectives];
                 if(outputData != null) {
                     AverageMovement metric1 = new AverageMovement();
