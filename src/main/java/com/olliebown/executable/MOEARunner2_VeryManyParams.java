@@ -26,7 +26,7 @@ public class MOEARunner2_VeryManyParams {
         FileUtil util = new FileUtil();
         util.writeText("MOEARunner2_VeryManyParams", "info.txt");
 
-        DeciderMOEAProblem theProblem = new DeciderMOEAProblem(4+9, "data/Redgate") {
+        DeciderMOEAProblem theProblem = new DeciderMOEAProblem(5, "data/Redgate") {
 
             int evalCount = 0;
             long lastTime = 0;
@@ -45,9 +45,7 @@ public class MOEARunner2_VeryManyParams {
                     results[3] = -1 * metric4.getMetric(outputData)[0];
                     DeciderSimulationStats metric5 = new DeciderSimulationStats();
                     double[] stats = metric5.getMetric(outputData);
-                    for(int i = 0; i < stats.length; i++) {
-                        results[3+i] = -1 * stats[i];
-                    }
+                    results[4] = -1 * stats[8];
                 }
                 System.out.print("  - Evaluation result: " + evalCount++ + " -- ");
                 for(int i = 0; i < results.length; i++) {
