@@ -25,19 +25,9 @@ public abstract class DeciderMOEAProblem extends AbstractProblem {
         Decider d = DeciderMOEAGrammar.generateDecider(solution);
         List<Number[][]> outputData = null;
         if(d != null) {
-            outputData = env.generateAllOutputData(d);
+            outputData = env.generateAllOutputDataSubset(d);
         }
-        //create a subset permutation of the outputData.
-        LinkedList<Number[][]> outputDataSubset = new LinkedList<>();
-        for(Number[][] n : outputData) {
-            outputDataSubset.add(n);
-        }
-        //randomly remove half the data from the subset
-        for(int i = 0; i < outputData.size() / 2; i++) {
-            int random = (int)(Math.random() * outputData.size());
-            outputDataSubset.remove(random);
-        }
-        double[] results = evaluate(outputDataSubset, d);
+        double[] results = evaluate(outputData, d);
         for(int i = 0; i < results.length; i++) {
             solution.setObjective(i, results[i]);
         }

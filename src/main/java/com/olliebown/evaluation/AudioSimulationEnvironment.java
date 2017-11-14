@@ -3,12 +3,14 @@ package com.olliebown.evaluation;
 import com.google.gson.Gson;
 import net.happybrackets.patternspace.dynamic_system.core.DynamicSystem;
 import net.happybrackets.patternspace.dynamic_system.core.DynamicSystemUtils;
+import net.happybrackets.patternspace.dynamic_system.decider.Decider;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 public class AudioSimulationEnvironment {
@@ -26,6 +28,7 @@ public class AudioSimulationEnvironment {
                     FileReader in = new FileReader(f);
                     Number[][] results = gson.fromJson(in, Number[][].class);
                     inputData.add(results);
+                    System.out.println("Loaded audio data file: " + f.getAbsolutePath());
                     in.close();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -58,4 +61,22 @@ public class AudioSimulationEnvironment {
     }
 
 
+    public List<Number[][]> generateAllOutputDataSubset(DynamicSystem ds) {
+        //create a subset permutation of the outputData.
+        LinkedList<Number[][]> inputDataSubset = new LinkedList<>();
+        for(Number[][] n : inputData) {
+            inputDataSubset.add(n);
+        }
+        //randomly remove half the data from the subset
+        for(int i = 0; i < inputData.size() / 2; i++) {
+            int random = (int)(Math.random() * inputDataSubset.size());
+            inputDataSubset.remove(random);
+        }
+        List<Number[][]> outputData = new ArrayList<>();
+        for(int i = 0; i < inputDataSubset.size(); i++) {
+            ds.reset();
+            outputData.add(generateOutputData(ds, inputDataSubset.get(i)));
+        }
+        return outputData;
+    }
 }
