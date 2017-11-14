@@ -24,7 +24,10 @@ public class SteadyRhythms implements EvaluationMetric<List<Number[][]>> {
             for(int i = 0; i < n.length; i++) {
                 double val = n[i][19].doubleValue();
                 if(val < previousVal) {
-                    intervals.add(i - previousTime);
+                    int interval = i - previousTime;
+                    if(interval != 0) {
+                        intervals.add(i - previousTime);
+                    }
                     previousTime = i;
                 }
                 previousVal = val;

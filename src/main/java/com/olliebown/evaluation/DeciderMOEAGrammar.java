@@ -14,6 +14,7 @@ import java.util.Random;
 public abstract class DeciderMOEAGrammar {
 
     static ContextFreeGrammar grammar;
+    static Random rng = new Random();
 
     static {
         try {
@@ -31,7 +32,7 @@ public abstract class DeciderMOEAGrammar {
         if(grammarFunction == null) {
             return null;
         }
-        Decider d = Decider.parseFromString(6, 26, grammarFunction, new Random());
+        Decider d = Decider.parseFromString(6, 26, grammarFunction, rng);
         return d;
     }
 

@@ -3,19 +3,16 @@ package com.olliebown.evaluation;
 import net.happybrackets.patternspace.dynamic_system.decider.Decider;
 import org.moeaframework.core.Solution;
 import org.moeaframework.core.variable.Grammar;
-import org.moeaframework.core.variable.RealVariable;
 import org.moeaframework.problem.AbstractProblem;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
-public abstract class DeciderMOEAProblem extends AbstractProblem {
+public abstract class DeciderMOEAProblemNonGrammar extends AbstractProblem {
 
     AudioSimulationEnvironment env;
 
-    public DeciderMOEAProblem(int numObjectives, String audioDir) throws IOException {
+    public DeciderMOEAProblemNonGrammar(int numObjectives, String audioDir) throws IOException {
         super(1, numObjectives);
         env = new AudioSimulationEnvironment();
         env.loadAudioData(audioDir);
@@ -23,7 +20,17 @@ public abstract class DeciderMOEAProblem extends AbstractProblem {
 
     @Override
     public void evaluate(Solution solution) {
-        Decider d = DeciderMOEAGrammar.generateDecider(solution);
+        if(solution == null || solution.getNumberOfVariables() == 0) {
+            System.out.println("NONONONONONONON");
+        }
+        DeciderMOEAVariable var = (DeciderMOEAVariable)solution.getVariable(0);
+        Decider d = null;
+        if(var != null) {
+            d = (var).getDecider();
+        } else {
+            System.out.println("VAR=NULL!!!");
+        }
+//        System.out.println("Evaluating: d="+d);
         List<Number[][]> outputData = null;
         if(d != null) {
             outputData = env.generateAllOutputDataSubset(d);
@@ -42,8 +49,9 @@ public abstract class DeciderMOEAProblem extends AbstractProblem {
 
     @Override
     public Solution newSolution() {
-        Solution solution = new Solution(1, numberOfObjectives);       //one grammar and 50 threshold values
-        solution.setVariable(0, new Grammar(100));
+        Solution solution = new Solution(1, numberOfObjectives);
+        DeciderMOEAVariable var = new DeciderMOEAVariable();
+        solution.setVariable(0, var);
         return solution;
     }
 }

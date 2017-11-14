@@ -1,4 +1,4 @@
-package com.olliebown.executable;
+package com.olliebown.executable.moea;
 
 import com.olliebown.evaluation.DeciderMOEAGrammar;
 import com.olliebown.evaluation.DeciderMOEAProblem;

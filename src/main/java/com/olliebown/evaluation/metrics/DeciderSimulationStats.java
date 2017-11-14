@@ -34,7 +34,7 @@ public class DeciderSimulationStats implements EvaluationMetric<List<Number[][]>
             }
         }
         doStats();
-        double[] result = new double[9];
+        double[] result = new double[10];
         result[0] = data.timeAtZeroNode;
         result[1] = data.nodesVisited;
         result[2] = data.medianNumVisits;
