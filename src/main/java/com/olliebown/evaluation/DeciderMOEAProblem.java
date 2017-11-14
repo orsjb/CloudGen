@@ -26,10 +26,14 @@ public abstract class DeciderMOEAProblem extends AbstractProblem {
         List<Number[][]> outputData = null;
         if(d != null) {
             outputData = env.generateAllOutputDataSubset(d);
-        }
-        double[] results = evaluate(outputData, d);
-        for(int i = 0; i < results.length; i++) {
-            solution.setObjective(i, results[i]);
+            double[] results = evaluate(outputData, d);
+            for(int i = 0; i < numberOfObjectives; i++) {
+                solution.setObjective(i, results[i]);
+            }
+        } else {
+            for(int i = 0; i < numberOfObjectives; i++) {
+                solution.setObjective(i, 10000000); //max out the solutions if we got a null D. We don't want it
+            }
         }
     }
 
