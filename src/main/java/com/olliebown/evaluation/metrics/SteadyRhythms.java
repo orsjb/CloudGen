@@ -12,7 +12,6 @@ import java.util.List;
  */
 public class SteadyRhythms implements EvaluationMetric<List<Number[][]>> {
 
-
     @Override
     public double[] getMetric(List<Number[][]> input) {
         double score = 0;
@@ -31,13 +30,10 @@ public class SteadyRhythms implements EvaluationMetric<List<Number[][]>> {
                 previousVal = val;
             }
         }
-
         //now intervals is populated with all of the cycle intervals
         //so we want to give max score to system that has consistent intervals (difference between one interval and next is low)
         //and has sme variation -- take a running average over the intervals and score variation more highly
-
         List<Double> runningAverage = new ArrayList<>();
-
         for(int i = 5; i < intervals.size(); i++) {
             double avg = 0;
             for(int j = 0; j < 5; j++) {
@@ -47,11 +43,12 @@ public class SteadyRhythms implements EvaluationMetric<List<Number[][]>> {
             int diff = Math.abs(intervals.get(i) - intervals.get(i-1));
             score -= diff;
         }
-        score /= intervals.size() - 5;
-
+        score /= (intervals.size() - 5);
+        if(intervals.size() < 7) {
+            score -= 1000;
+        }
         return new double[] {score};
     }
-
     @Override
     public String[] getMetricInfo() {
         return new String[0];
