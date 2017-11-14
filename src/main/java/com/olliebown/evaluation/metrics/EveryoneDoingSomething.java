@@ -23,7 +23,7 @@ public class EveryoneDoingSomething implements EvaluationMetric<List<Number[][]>
                 Number[] doubles = DynamicSystemUtils.getOutputs(n[i], Double.class);
                 for(int j = 0; j < numOutputs; j++) {
                     if(!changed[j]) {
-                        if(!previousDoubles[j].equals(doubles[j])) {
+                        if(previousDoubles[j].doubleValue() != doubles[j].doubleValue()) {
                             changed[j] = true;
                         }
                     }
