@@ -63,15 +63,13 @@ public class MOEARunner2_VeryManyParams {
         properties.setProperty("populationSize", "100");
         Algorithm algorithmNSGAII = AlgorithmFactory.getInstance().getAlgorithm(
                 "NSGAII", properties, theProblem);
-        Algorithm algorithmSPEA2 = AlgorithmFactory.getInstance().getAlgorithm(
-                "SPEA2", properties, theProblem);
+
         FileWriter metrics = new FileWriter(new File(util.dir + "/metrics.csv"));
         metrics.write("Name,generation,avg_mvmnt,pure_response,variance,steady,entropy,total_nodes,everyone_busy\n");
         int steps = 20000;
         int writeInterval = 10;
         for(int i = 0; i < steps; i++) {
             algorithmNSGAII.step();
-            algorithmSPEA2.step();
             if (i % writeInterval == 0) {
 
                 NondominatedPopulation population = algorithmNSGAII.getResult();
@@ -80,7 +78,7 @@ public class MOEARunner2_VeryManyParams {
                     Decider d = DeciderMOEAGrammar.generateDecider(s);
                     String name = "gen_NSGAII_" + i + "_#" + sol;
                     util.write(d,name);
-                    metrics.write(name);
+                    metrics.write(name + "," + i);
                     for(int objective = 0; objective < s.getNumberOfObjectives(); objective++) {
                         metrics.write("," + s.getObjective(objective));
                     }
@@ -90,21 +88,6 @@ public class MOEARunner2_VeryManyParams {
                 System.out.println("Step NSGAII " + i + ", objective1=" + population.get(0).getObjective(0)
                         + ", objective2=" + population.get(0).getObjective(1));
 
-                population = algorithmSPEA2.getResult();
-                for(int sol = 0; sol < population.size(); sol++) {
-                    Solution s = population.get(sol);
-                    Decider d = DeciderMOEAGrammar.generateDecider(s);
-                    String name = "gen_SPEA2_" + i + "_#" + sol;
-                    util.write(d,name);
-                    metrics.write(name);
-                    metrics.write(i);
-                    for(int objective = 0; objective < s.getNumberOfObjectives(); objective++) {
-                        metrics.write("," + s.getObjective(objective));
-                    }
-                    metrics.write("\n");
-                }
-                System.out.println("Step SPEA2 " + i + ", objective1=" + population.get(0).getObjective(0)
-                        + ", objective2=" + population.get(0).getObjective(1));
 
             }
         }
