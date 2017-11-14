@@ -26,7 +26,7 @@ public class MOEARunner2_VeryManyParams {
         FileUtil util = new FileUtil();
         util.writeText("MOEARunner2_VeryManyParams", "info.txt");
 
-        DeciderMOEAProblem theProblem = new DeciderMOEAProblem(5, "data/Redgate") {
+        DeciderMOEAProblem theProblem = new DeciderMOEAProblem(7, "data/Training") {
 
             int evalCount = 0;
             long lastTime = 0;
@@ -45,7 +45,10 @@ public class MOEARunner2_VeryManyParams {
                     results[3] = -1 * metric4.getMetric(outputData)[0];
                     DeciderSimulationStats metric5 = new DeciderSimulationStats();
                     double[] stats = metric5.getMetric(outputData);
-                    results[4] = -1 * stats[8];
+                    results[4] = -1 * stats[8]; //entropy
+                    results[5] = -1 * stats[1]; //number of nodes visited
+                    EveryoneDoingSomething metric6 = new EveryoneDoingSomething();
+                    results[6] = -1 * metric6.getMetric(outputData)[0];
                 }
                 System.out.print("  - Evaluation result: " + evalCount++ + " -- ");
                 for(int i = 0; i < results.length; i++) {
@@ -56,17 +59,14 @@ public class MOEARunner2_VeryManyParams {
                 return results;
             }
         };
-
         Properties properties = new Properties();
         properties.setProperty("populationSize", "100");
         Algorithm algorithmNSGAII = AlgorithmFactory.getInstance().getAlgorithm(
                 "NSGAII", properties, theProblem);
         Algorithm algorithmSPEA2 = AlgorithmFactory.getInstance().getAlgorithm(
                 "SPEA2", properties, theProblem);
-
         FileWriter metrics = new FileWriter(new File(util.dir + "/metrics.csv"));
-        metrics.write("Name,avg_mvmnt,pure_response,variance,stats1,stats2,stats3,stats4,stats5,stats6,stats7,stats8,stats9\n");
-
+        metrics.write("Name,generation,avg_mvmnt,pure_response,variance,steady,entropy,total_nodes,everyone_busy\n");
         int steps = 20000;
         int writeInterval = 10;
         for(int i = 0; i < steps; i++) {
@@ -78,7 +78,7 @@ public class MOEARunner2_VeryManyParams {
                 for(int sol = 0; sol < population.size(); sol++) {
                     Solution s = population.get(sol);
                     Decider d = DeciderMOEAGrammar.generateDecider(s);
-                    String name = "gen_NSGAII" + i + "#" + sol;
+                    String name = "gen_NSGAII_" + i + "_#" + sol;
                     util.write(d,name);
                     metrics.write(name);
                     for(int objective = 0; objective < s.getNumberOfObjectives(); objective++) {
@@ -94,9 +94,10 @@ public class MOEARunner2_VeryManyParams {
                 for(int sol = 0; sol < population.size(); sol++) {
                     Solution s = population.get(sol);
                     Decider d = DeciderMOEAGrammar.generateDecider(s);
-                    String name = "gen_SPEA2" + i + "#" + sol;
+                    String name = "gen_SPEA2_" + i + "_#" + sol;
                     util.write(d,name);
                     metrics.write(name);
+                    metrics.write(i);
                     for(int objective = 0; objective < s.getNumberOfObjectives(); objective++) {
                         metrics.write("," + s.getObjective(objective));
                     }
